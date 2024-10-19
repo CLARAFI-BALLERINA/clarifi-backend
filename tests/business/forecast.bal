@@ -3,15 +3,15 @@ import ballerina/io;
 import ballerina/file;
 import ballerina/mime;
 import ballerina/http;
-import ballerina/pdf;
 
 service / on new http:Listener(8080) {
 
     resource function post forecast(http:Caller caller, http:Request req) returns error? {
         // Check if the request has a file
-        if req.hasFilePart() {
+        http:Part[] parts =  check req.getBodyParts();
+        if parts.length() > 0 {
             // Get the file part from the request
-            http:Part filePart = req.getFilePart("file");
+            http:Part filePart = parts[0];
             if filePart is http:Part {
                 // Save the uploaded file
                 string filePath = "./uploaded/" + filePart.filename;
@@ -46,7 +46,11 @@ function processPDF(string filePath) returns string|error {
 }
 
 function generateForecast(string text) returns string {
-    // Placeholder function to generate a financial forecast
-    // In a real-world scenario, this function would analyze the text and generate a forecast
+    // formula 
+    // it should be done in monthwise
+    decimal  incashflow;
+    decimal  outcashflow;
+
+     decimal cashflow = incashflow +outcashflow;
     return "Financial forecast based on the uploaded PDF: " + text;
 }

@@ -24,8 +24,17 @@ service /cashbook on new http:Listener(8080) {
 }
 
 function processPDF(string filePath) returns string {
-    // Placeholder function to process the PDF and generate the report
-    // You can use a PDF library to extract data and create the report
-    // For now, we'll just return a dummy report
+// i don't know how to this 
+    // left side  (dr)
+    // cash and bank that came into the business
+
+    //right side (cr)
+     // cash and bank that gone out from the business
+
+     // the balance of dr and cr should be equal which means the largest amount represent both dr and cr
+     // there is no claculation just need to mention which side is the largest and how ids the difference
+     // format for that is  creidt / debit = balance c/d <difference>
+
+
     return "Cash Book Report: \n\n[Report content extracted from PDF]";
 }

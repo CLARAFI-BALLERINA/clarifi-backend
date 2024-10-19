@@ -1,4 +1,5 @@
 import ballerina/io;
+import ballerina/file;
 import ballerina/http;
 import ballerina/mime;
 
@@ -10,12 +11,13 @@ service /financialReport on uploadListener {
     // Handle POST requests with PDF file upload
     resource function post upload(http:Caller caller, http:Request req) returns error? {
         // Extract the uploaded file
-        mime:Entity|error bodyPart = req.getBodyParts();
+        mime:Entity[]|error bodyPart =  req.getBodyParts();
 
         if bodyPart is mime:Entity[] {
             foreach var part in bodyPart {
                 // Assuming we are getting the first file part
-                if part.getContentDisposition()?.filename is string filename {
+                mime:ContentDisposition contentDisposition = part.getContentDisposition();
+                if contentDisposition.filename is string filename {
                     io:println("Uploaded file: " + filename);
 
                     // Assuming PDF content is extracted into text via an external service
@@ -28,10 +30,7 @@ service /financialReport on uploadListener {
 
                     // Send financial statement as response
                     json response = {
-                        "Revenue": financialStatement.revenue,
-                        "COGS": financialStatement.cogs,
-                        "OperatingExpenses": financialStatement.operatingExpenses,
-                        "NetIncome": financialStatement.netIncome
+                        
                     };
                     check caller->respond(response);
                 }
@@ -47,23 +46,37 @@ function extractFinancialDataFromPDF(mime:Entity part) returns string {
     // This is where you would use an external library or API to extract data
     return "Sample extracted PDF content with financial data";
 }
-
+// i did only this part
 // Record to represent the financial statement
 type FinancialStatement record {
-    decimal revenue;
-    decimal cogs;
-    decimal operatingExpenses;
-    decimal netIncome;
+    
+    decimal totalassest ;
+    decimal toatalliabilty ;
+    decimal toatalliabilty_equity;
+    
 };
 
-// Function to generate the financial statement from extracted text
+
 function generateFinancialStatement(string pdfContent) returns FinancialStatement {
-    // Logic to parse the extracted content and compute financial statement
-    // For simplicity, we'll just return some dummy data
+   // formula
+    decimal currentassest;
+    decimal noncurrentassest;
+    decimal cureentlaibilty;
+    decimal noncurrentliabilty;
+    decimal equity;
+    
+
+    decimal totalassest = currentassest + noncurrentassest;
+
+    decimal toatalliabilty = cureentlaibilty + noncurrentliabilty;
+    decimal toatalliabilty_equity = toatalliabilty + equity;
+
+     //  total assets should be equal to totallaibilty_equity
+    
     return {
-        revenue: 1000000,
-        cogs: 500000,
-        operatingExpenses: 200000,
-        netIncome: 300000
+     equity,
+     toatalliabilty,
+     totalassest,
+     toatalliabilty_equity
     };
 }

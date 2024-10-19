@@ -10,7 +10,7 @@ service /personalExpense on uploadListener {
     // Handle POST requests with PDF file upload
     resource function post upload(http:Caller caller, http:Request req) returns error? {
         // Extract the uploaded file
-        mime:Entity|error bodyPart = req.getBodyParts();
+        mime:Entity[]|http:ClientError bodyPart = req.getBodyParts();
 
         if bodyPart is mime:Entity[] {
             foreach var part in bodyPart {
@@ -45,10 +45,10 @@ function extractExpenseDataFromPDF(mime:Entity part) returns string {
 function calculatePersonalExpenses(string pdfContent) returns decimal {
     // Here, parse the extracted content for personal expenses and calculate total
     // For simplicity, we'll return some dummy data for now
-    decimal rent = 1000;
-    decimal groceries = 300;
-    decimal utilities = 150;
-    decimal entertainment = 200;
+    decimal rent ;
+    decimal groceries ;
+    decimal utilities ;
+    decimal entertainment;
 
     decimal totalExpenses = rent + groceries + utilities + entertainment;
     return totalExpenses;

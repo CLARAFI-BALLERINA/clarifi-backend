@@ -51,9 +51,9 @@ function calculatePersonalIncome(string pdfContent) returns decimal {
     // In a real application, you'd parse this data properly
 
     // Sample data parsing: "Salary: 5000, Investments: 1500, Other: 500"
-    decimal salary = 5000;
-    decimal investments = 1500;
-    decimal otherIncome = 500;
+    decimal salary ;
+    decimal investments ;
+    decimal otherIncome ;
 
     // Calculate total personal income
     return salary + investments + otherIncome;

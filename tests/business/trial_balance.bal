@@ -1,6 +1,8 @@
 import ballerina/io;
 import ballerina/http;
 import ballerina/mime;
+import ballerina/file;
+import ballerina/pdf;
 
 listener http:Listener uploadListener = new (9090);
 
@@ -44,7 +46,7 @@ function extractTrialBalanceFromPDF(mime:Entity part) returns string {
     // You would need an external service/library to parse the PDF and return relevant text
     return "Sample extracted PDF content for trial balance";
 }
-
+// not sure how to do this
 // Record representing the trial balance
 type TrialBalance record {
     decimal assets;
@@ -56,13 +58,13 @@ type TrialBalance record {
 
 // Function to generate a trial balance from the extracted PDF text
 function generateTrialBalance(string pdfContent) returns TrialBalance {
-    // Parse the extracted content and calculate the trial balance
-    // For now, returning dummy data
+    //dr side ()
+    //cr side ()
     return {
-        assets: 500000,
-        liabilities: 200000,
-        equity: 300000,
-        totalDebits: 500000,
-        totalCredits: 500000
+        assets,
+        liabilities,
+        equity,
+        totalDebits,
+        totalCredits,
     };
 }
