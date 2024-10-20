@@ -1,305 +1,215 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Login Page</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" />
     <style>
-      body {
-        margin: 0px;
-        padding: 0px;
-      }
-      .login-container {
-        background-color: #000;
-        overflow: hidden;
-        padding: 0 80px 14px 0;
-      }
+        /* Base Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-      .login-content {
-        display: flex;
-        gap: 20px;
-      }
+        body {
+            font-family: "Roboto", sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #003152;
+        }
 
-      .welcome-column {
-        display: flex;
-        flex-direction: column;
-        line-height: normal;
-        width: 63%;
-      }
-
-      .welcome-design {
-        display: flex;
-        flex-grow: 1;
-        padding-top: 109px;
-        flex-direction: column;
-      }
-
-      .welcome-image-wrapper {
-        display: flex;
-        flex-direction: column;
-        position: relative;
-        min-height: 209px;
-        width: 100%;
-        padding: 0 11px;
-      }
-
-      .welcome-background {
-        position: absolute;
-        inset: 0;
-        height: 100%;
-        width: 100%;
-        object-fit: cover;
-        object-position: center;
-      }
-
-      .welcome-foreground {
-        aspect-ratio: 1.81;
-        object-fit: contain;
-        object-position: center;
-        width: 100%;
-        z-index: 10;
-        margin: -109px 0 -90px;
-      }
-
-      .welcome-text {
-        align-self: center;
-        margin-top: 186px;
-        font: 300 64px Roboto, sans-serif;
-        color: #fff;
-      }
-
-      .welcome-footer {
-        display: flex;
-        flex-direction: column;
-        position: relative;
-        min-height: 397px;
-        margin-top: 60px;
-        width: 100%;
-        justify-content: center;
-        padding: 78px 0;
-      }
-
-      .welcome-footer-image {
-        aspect-ratio: 3.12;
-        object-fit: contain;
-        object-position: center;
-        width: 100%;
-      }
-
-      .login-form-column {
-        display: flex;
-        flex-direction: column;
-        line-height: normal;
-        width: 37%;
-        margin-left: 20px;
-      }
-
-      .login-form {
-        display: flex;
-        width: 100%;
-        flex-direction: column;
-        align-self: stretch;
-        align-items: center;
-        margin: auto 0;
-        font: 400 20px Outfit, sans-serif;
-      }
-
-      .login-title {
-        color: #fff;
-        font-size: 40px;
-        font-weight: 500;
-      }
-
-      .login-input {
-        border-radius: 30px;
-        background-color: #d9d9d9;
-        align-self: stretch;
-        margin-top: 23px;
-        color: #433f3f;
-        white-space: nowrap;
-        padding: 11px 18px;
-      }
-
-      .login-button {
-        border-radius: 30px;
-        background-color: #3398ff;
-        margin-top: 53px;
-        width: 120px;
-        max-width: 100%;
-        color: #000;
-        white-space: nowrap;
-        padding: 6px 36px;
-        border: none;
-        cursor: pointer;
-      }
-
-      .signup-prompt {
-        display: flex;
-        margin-top: 29px;
-        width: auto;
-        max-width: 100%;
-        gap: 9px;
-      }
-
-      .signup-text {
-        color: #fff;
-        flex-grow: 1;
-      }
-
-      .signup-link {
-        color: #3298ff;
-        text-decoration: none;
-        margin: auto;
-      }
-
-      .visually-hidden {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        padding: 0;
-        margin: -1px;
-        overflow: hidden;
-        clip: rect(0, 0, 0, 0);
-        white-space: nowrap;
-        border: 0;
-      }
-
-      @media (max-width: 991px) {
         .login-container {
-          padding-right: 20px;
+            background-color: #7d9baf;
+            max-width: 900px;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            padding: 20px;
+            gap: 20px;
         }
 
-        .login-content {
-          flex-direction: column;
-          align-items: stretch;
-          gap: 0;
+        .login-left {
+            background-color: #6200ea;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 16px 0 0 16px;
+            padding: 20px;
         }
 
-        .welcome-column,
-        .login-form-column {
-          width: 100%;
+        .login-left h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-align: center;
         }
 
-        .welcome-design {
-          max-width: 100%;
-          margin-top: 40px;
-          padding-top: 100px;
+        .image-wrapper {
+            width: 100%;
+            padding: 0;
         }
 
-        .welcome-image-wrapper,
-        .welcome-footer {
-          max-width: 100%;
+        .background-image {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+            border-radius: 16px;
         }
 
-        .welcome-foreground {
-          max-width: 100%;
-          margin-bottom: 10px;
-        }
-
-        .welcome-text {
-          max-width: 100%;
-          margin-top: 40px;
-          font-size: 40px;
-          background: linear-gradient(to right, #ff7e5f, #feb47b);
-          background-clip: text;
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-        }
-
-        .welcome-footer {
-          margin-top: 40px;
-        }
-
-        .welcome-footer-image {
-          max-width: 100%;
+        .login-right {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .login-form {
-          max-width: 100%;
-          margin-top: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
 
-        .login-input {
-          max-width: 100%;
-          padding-right: 20px;
-          white-space: initial;
+        .form-title {
+            font-size: 2rem;
+            font-weight: 500;
+            text-align: center;
+            color: #333;
         }
 
-        .login-input[type="password"] {
-          margin-top: 40px;
+        .form-input {
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+            transition: border 0.3s ease;
+            outline: none;
         }
 
-        .login-button {
-          margin-top: 40px;
-          white-space: initial;
-          padding: 0 20px;
+        .form-input:focus {
+            border: 1px solid #6200ea;
         }
-      }
+
+        .submit-button {
+            padding: 12px;
+            background-color: #6200ea;
+            border: none;
+            color: white;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .submit-button:hover {
+            background-color: #3700b3;
+        }
+
+        .login-section {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .login-text {
+            color: #666;
+        }
+
+        .login-link {
+            color: #6200ea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .login-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .login-container {
+                grid-template-columns: 1fr;
+                padding: 15px;
+            }
+
+            .login-left {
+                display: none;
+            }
+
+            .login-right {
+                width: 100%;
+            }
+
+            .form-title {
+                font-size: 1.75rem;
+            }
+
+            .form-input {
+                font-size: 1rem;
+                padding: 10px;
+            }
+
+            .submit-button {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .form-title {
+                font-size: 1.5rem;
+            }
+
+            .submit-button {
+                font-size: 0.9rem;
+            }
+        }
     </style>
-  </head>
-  <body>
+</head>
+<body>
     <section class="login-container">
-      <div class="login-content">
-        <div class="welcome-column">
-          <div class="welcome-design">
-            <div class="welcome-image-wrapper">
-              <img
-                loading="lazy"
-                src="https://cdn.builder.io/api/v1/image/assets/TEMP/175205890ba34d46ef31e8b0a5a6c82866efdecd03ea1a8627a774cfa3aefcd6?placeholderIfAbsent=true&apiKey=bafea13b705f4c4497b3ce15ecd9a5a8"
-                class="welcome-background"
-                alt=""
-              />
-              <img
-                loading="lazy"
-                src="https://cdn.builder.io/api/v1/image/assets/TEMP/b22bcdaa3d003092faedda13c2fed97d045134760261337b3bfc358583b6d8f8?placeholderIfAbsent=true&apiKey=bafea13b705f4c4497b3ce15ecd9a5a8"
-                class="welcome-foreground"
-                alt="Welcome design element"
-              />
+        <div class="login-left">
+            <h1>Welcome Back!</h1>
+            <div class="image-wrapper">
+                <img
+                    loading="lazy"
+                    src="https://cdn.builder.io/api/v1/image/assets/TEMP/175205890ba34d46ef31e8b0a5a6c82866efdecd03ea1a8627a774cfa3aefcd6?placeholderIfAbsent=true&apiKey=bafea13b705f4c4497b3ce15ecd9a5a8"
+                    class="background-image"
+                    alt=""
+                />
+                <img
+                    loading="lazy"
+                    src="https://cdn.builder.io/api/v1/image/assets/TEMP/b22bcdaa3d003092faedda13c2fed97d045134760261337b3bfc358583b6d8f8?placeholderIfAbsent=true&apiKey=bafea13b705f4c4497b3ce15ecd9a5a8"
+                    class="background-image"
+                    alt="Welcome design element"
+                />
             </div>
-            <h1 class="welcome-text">Welcome Back!</h1>
-            <div class="welcome-footer">
-              <img
-                loading="lazy"
-                src="https://cdn.builder.io/api/v1/image/assets/TEMP/5f5849ff4c2b1c525a5437dbd7cc04a40ff9aadab4eea109b30b6cbc88816776?placeholderIfAbsent=true&apiKey=bafea13b705f4c4497b3ce15ecd9a5a8"
-                class="welcome-background"
-                alt=""
-              />
-              <img
-                loading="lazy"
-                src="https://cdn.builder.io/api/v1/image/assets/TEMP/eb4495fa589f5137a271a25750af3da94855f921e15943061269ed5f323a4445?placeholderIfAbsent=true&apiKey=bafea13b705f4c4497b3ce15ecd9a5a8"
-                class="welcome-footer-image"
-                alt="Decorative footer image"
-              />
-            </div>
-          </div>
         </div>
-        <div class="login-form-column">
-          <form class="login-form">
-            <h2 class="login-title">Login</h2>
-            <label for="email" class="visually-hidden">Email</label>
-            <input
-              type="email"
-              id="email"
-              class="login-input"
-              placeholder="Email"
-              required
-            />
-            <label for="password" class="visually-hidden">Password</label>
-            <input
-              type="password"
-              id="password"
-              class="login-input"
-              placeholder="Password"
-              required
-            />
-            <button type="submit" class="login-button">Login</button>
-            <div class="signup-prompt">
-              <p class="signup-text">Not signed up yet?</p>
-              <a href="#" class="signup-link">Sign up</a>
-            </div>
-          </form>
+        <div class="login-right">
+            <form class="login-form">
+                <h2 class="form-title">Login</h2>
+                <input
+                    type="email"
+                    id="email"
+                    class="form-input"
+                    placeholder="Email"
+                    required
+                />
+                <input
+                    type="password"
+                    id="password"
+                    class="form-input"
+                    placeholder="Password"
+                    required
+                />
+                <button type="submit" class="submit-button">Login</button>
+                <div class="login-section">
+                    <p class="login-text">Not signed up yet?</p>
+                    <a href="signup" class="login-link">Sign up</a>
+                </div>
+            </form>
         </div>
-      </div>
     </section>
-  </body>
+</body>
 </html>

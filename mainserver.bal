@@ -103,7 +103,6 @@ service / on new http:Listener(8080) {
         check caller->respond(response);
     }
 
-    // Resource to handle GET requests for retrieving data
     resource function get getData(http:Caller caller, http:Request req) returns error? {
         syslog info = new syslog();
         json response = {};
@@ -153,7 +152,7 @@ service / on new http:Listener(8080) {
         syslog info = new syslog();
         info.loginfo("Serving index.html from the app folder.");
 
-        string pathToFile = "./app/index.html"; // Path to the index.html file inside the app folder
+        string pathToFile = "./app/index.html";
         mime:Entity entity = new;
         entity.setFileAsEntityBody(pathToFile, contentType = mime:TEXT_HTML);
         http:Response response = new;
@@ -163,7 +162,17 @@ service / on new http:Listener(8080) {
 
     resource function get signup(http:Caller caller, http:Request req) returns error? {
         syslog info = new syslog();
-        string pathToFile = "./app/signup.html"; // Path to the index.html file inside the app folder
+        string pathToFile = "./app/signup.html";
+        mime:Entity entity = new;
+        entity.setFileAsEntityBody(pathToFile, contentType = mime:TEXT_HTML);
+        http:Response response = new;
+        response.setEntity(entity);
+        check caller->respond(response);
+    }
+
+    resource function get login(http:Caller caller, http:Request req) returns error? {
+        syslog info = new syslog();
+        string pathToFile = "./app/login.html";
         mime:Entity entity = new;
         entity.setFileAsEntityBody(pathToFile, contentType = mime:TEXT_HTML);
         http:Response response = new;
