@@ -1,6 +1,7 @@
 import ballerina/io;
 import ballerina/http;
 import ballerinax/mongodb;
+import ballerina/mime;
 
 public class DatabaseConn {
     public string hostname = "localhost";
@@ -19,9 +20,7 @@ public class DatabaseConn {
         var collectionResult = dbName->getCollection(collectionName);
         if (collectionResult is mongodb:Collection) {
             self.collection = collectionResult;
-            // Convert json to a record type
             record {| anydata...; |} docRecord = check document.cloneWithType();
-            // add record to collection
             check collectionResult->insertOne(docRecord);
         } else {
             return collectionResult;
@@ -42,27 +41,26 @@ public class DatabaseConn {
     }
 
     // Function to retrieve data from the collection based on filter criteria
-    public function retrieveData(string dbNameStr, string collectionName) returns json[]|error {
-    mongodb:Client mongoDb = check self.connectDB();
-    mongodb:Database dbName = check mongoDb->getDatabase(dbNameStr);
-    var collectionResult = dbName->getCollection(collectionName);
-    if (collectionResult is mongodb:Collection) {
-        map<json> query = {};
-        stream<record {| anydata...; |}, error?> docStream = check collectionResult->find(query);
-        json[] retrievedDocs = [];
-        check from record {| anydata...; |} doc in docStream
-            do {
-                retrievedDocs.push(doc.toJson());
-            };
-        io:println("Retrieved Documents: ");
-        io:println(retrievedDocs.toString());
-        return  retrievedDocs;
-    } else {
-        io:println("Collection not found");
-        return [];
+    public function retrieveData(string dbNameStr, string collectionName ) returns json[]|error {
+        mongodb:Client mongoDb = check self.connectDB();
+        mongodb:Database dbName = check mongoDb->getDatabase(dbNameStr);
+        var collectionResult = dbName->getCollection(collectionName);
+        if (collectionResult is mongodb:Collection) {
+            map<json> query = {};
+            stream<record {| anydata...; |}, error?> docStream = check collectionResult->find(query);
+            json[] retrievedDocs = [];
+            check from record {| anydata...; |} doc in docStream
+                do {
+                    retrievedDocs.push(doc.toJson());
+                };
+            io:println("Retrieved Documents: ");
+            io:println(retrievedDocs.toString());
+            return retrievedDocs;
+        } else {
+            io:println("Collection not found");
+            return [];
+        }
     }
-}
-
 }
 
 public class syslog {
@@ -70,6 +68,8 @@ public class syslog {
         io:println("[Clarifi-System-Info] " + data);
     }
 }
+
+// Service to handle HTTP requests
 service / on new http:Listener(8080) {
 
     // Resource to handle POST requests for inserting data
@@ -106,49 +106,71 @@ service / on new http:Listener(8080) {
     // Resource to handle GET requests for retrieving data
     resource function get getData(http:Caller caller, http:Request req) returns error? {
         syslog info = new syslog();
+        json response = {};
         info.loginfo("Received HTTP GET request.");
         string[7] collections = ["users", "admins", "income", "expenses", "assets", "liabilities", "capital"];
 
         json payload = check req.getJsonPayload();
-
-
         string payloadToString = payload.toString();
         json parsedData = check payloadToString.fromJsonString();
 
         string collectionName = check parsedData.collectionName;
         string dbName = check parsedData.dbName;
 
+        io:println("Collection Name: " + collectionName);
+
+        boolean collectionFound = false;
         foreach string stuff in collections {
-            if (stuff == collectionName.toString()){
+            if (stuff == collectionName.toString()) {
+                if (collectionName.toString() == "users") {
+                    string email = check parsedData.email;
+                    string emailStr = email.toString();
+                    info.loginfo("Email: " + emailStr);
+                    DatabaseConn dbConn = new DatabaseConn();
+                    string dbNameStr = dbName.toString();
+                    json[] listResult = check dbConn.retrieveData(dbNameStr, collectionName);
+                }
                 info.loginfo("Collection Found: " + collectionName);
-                // read data from mongoDB
-                //DatabaseConn dbConn = new DatabaseConn();
-                //string dbNameStr = dbName.toString();
-                //json[] listResult = check dbConn.retrieveData(dbNameStr, collectionName);
-                //string result = listResult.toString();
-                //json response = {status: "success", message: "Data retrieved successfully", data: result};
-                //check caller->respond(response);
-            } else {
-                json response = {status: "failure", message: "Collection not found"};
-                check caller->respond(response);
+                DatabaseConn dbConn = new DatabaseConn();
+                string dbNameStr = dbName.toString();
+                json[] listResult = check dbConn.retrieveData(dbNameStr, collectionName);
+                string result = listResult.toString();
+                io:println("Result: " + result);
+                response = {status: "success", message: "Data retrieved successfully", data: result};
+                collectionFound = true;
+                break; // Exit loop when collection is found
             }
         }
 
-
-        // Extract query parameters for the database name and collection
-        // string dbName = check req.getQueryParamValue("dbName");
-        // string collectionName = check req.getQueryParamValue("collectionName");
-        // json filter = check req.getJsonPayload();
-
-        // info.loginfo("Database: " + dbName + ", Collection: " + collectionName + ", Filter: " + filter.toString());
-
-        // DatabaseConn dbConn = new DatabaseConn();
-        // json result = check dbConn.retrieveData(dbName, collectionName, filter);
-
-        // read data from mongoDB
-        // json result = check dbConn.retrieveData(dbName, collectionName);
-        // Respond with the retrieved data
+        if (!collectionFound) {
+            response = {status: "failure", message: "Collection not found"};
+        }
+        check caller->respond(response);
     }
+
+    // Resource to handle GET requests to display the index.html
+    resource function get .(http:Caller caller, http:Request req) returns error? {
+        syslog info = new syslog();
+        info.loginfo("Serving index.html from the app folder.");
+
+        string pathToFile = "./app/index.html"; // Path to the index.html file inside the app folder
+        mime:Entity entity = new;
+        entity.setFileAsEntityBody(pathToFile, contentType = mime:TEXT_HTML);
+        http:Response response = new;
+        response.setEntity(entity);
+        check caller->respond(response);
+    }
+
+    resource function get signup(http:Caller caller, http:Request req) returns error? {
+        syslog info = new syslog();
+        string pathToFile = "./app/signup.html"; // Path to the index.html file inside the app folder
+        mime:Entity entity = new;
+        entity.setFileAsEntityBody(pathToFile, contentType = mime:TEXT_HTML);
+        http:Response response = new;
+        response.setEntity(entity);
+        check caller->respond(response);
+    }
+
 }
 
 public function main() returns error? {

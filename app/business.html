@@ -1,0 +1,319 @@
+<style>
+    .business-tracker {
+      border-radius: 30px;
+      background-color: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-family: Outfit, sans-serif;
+      padding: 141px 80px 245px;
+    }
+    
+    .tracker-container {
+      display: flex;
+      width: 100%;
+      max-width: 1098px;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .tracker-title {
+      align-self: center;
+      margin-left: 44px;
+      font: 300 64px Roboto, sans-serif;
+      color: #fff;
+    }
+    
+    .upload-section-title {
+      color: #fff;
+      font-size: 40px;
+      font-weight: 500;
+      margin-top: 64px;
+    }
+    
+    .upload-instruction {
+      color: #fff;
+      font-size: 24px;
+      font-weight: 500;
+      margin-top: 28px;
+    }
+    
+    .file-upload-container {
+      border-radius: 10px;
+      background-color: #d9d9d9;
+      align-self: stretch;
+      display: flex;
+      margin-top: 25px;
+      flex-direction: column;
+      align-items: flex-start;
+      font-size: 20px;
+      color: #002b50;
+      font-weight: 400;
+      justify-content: center;
+      padding: 12px 21px;
+    }
+    
+    .choose-file-btn {
+      border-radius: 10px;
+      background-color: rgba(67, 63, 63, 0.49);
+      padding: 1px 20px;
+    }
+    
+    .upload-btn {
+      border-radius: 30px;
+      background-color: #3398ff;
+      align-self: center;
+      margin-top: 41px;
+      width: 120px;
+      font-size: 20px;
+      color: #000;
+      font-weight: 400;
+      white-space: nowrap;
+      padding: 6px 28px;
+    }
+    
+    .manual-entry-title {
+      color: #fff;
+      font-size: 40px;
+      font-weight: 500;
+      margin-top: 41px;
+      width: 531px;
+    }
+    
+    .form-label {
+      color: #fff;
+      font-size: 24px;
+      font-weight: 500;
+      margin-top: 28px;
+    }
+    
+    .form-select {
+      border-radius: 10px;
+      background-color: #d9d9d9;
+      display: flex;
+      margin-top: 28px;
+      width: 265px;
+      gap: 20px;
+      font-size: 20px;
+      color: #433f3f;
+      font-weight: 400;
+      white-space: nowrap;
+      justify-content: space-between;
+      padding: 3px 0 3px 18px;
+    }
+    
+    .form-select-text {
+      margin: auto 0;
+    }
+    
+    .form-select-icon {
+      aspect-ratio: 1.24;
+      object-fit: contain;
+      object-position: center;
+      width: 51px;
+      border-radius: 10px;
+    }
+    
+    .form-input {
+      border-radius: 10px;
+      background-color: #d9d9d9;
+      margin-top: 28px;
+      width: 265px;
+      font-size: 20px;
+      color: #433f3f;
+      font-weight: 400;
+      padding: 11px 18px;
+    }
+    
+    .submit-btn {
+      border-radius: 30px;
+      background-color: #3398ff;
+      align-self: center;
+      margin-top: 58px;
+      width: 120px;
+      font-size: 20px;
+      color: #000;
+      font-weight: 400;
+      white-space: nowrap;
+      padding: 6px 29px;
+    }
+    
+    .generate-reports-title {
+      color: #fff;
+      font-size: 40px;
+      font-weight: 500;
+      margin-top: 155px;
+    }
+    
+    .report-selection {
+      display: flex;
+      margin-top: 21px;
+      width: 539px;
+      max-width: 100%;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+    
+    
+    .report-label {
+      color: #fff;
+      font-size: 24px;
+      font-weight: 500;
+      margin: auto 0;
+    }
+    
+    .report-select {
+      border-radius: 10px;
+      background-color: #d9d9d9;
+      display: flex;
+      gap: 38px;
+      font-size: 20px;
+      color: #433f3f;
+      font-weight: 400;
+      padding: 3px 0 3px 15px;
+    }
+    
+    .report-option {
+      flex-basis: auto;
+      margin: auto 0;
+    }
+    
+    
+    .generate-report-btn {
+      border-radius: 30px;
+      background-color: #3398ff;
+      align-self: center;
+      margin-top: 52px;
+      width: 202px;
+      font-size: 20px;
+      color: #000;
+      font-weight: 400;
+      padding: 6px 28px;
+    }
+    
+    .visual-insights-title {
+      color: #fff;
+      font-size: 40px;
+      font-weight: 500;
+      margin-top: 17px;
+    }
+    
+    .insights-container {
+      border-radius: 20px;
+      background-color: #d9d9d9;
+      display: flex;
+      margin-top: 66px;
+      width: 1074px;
+      max-width: 100%;
+      height: 695px;
+    }
+    
+    @media (max-width: 991px) {
+      .business-tracker {
+        padding: 100px 20px;
+      }
+    
+      .tracker-container {
+        max-width: 100%;
+      }
+    
+      .tracker-title {
+        max-width: 100%;
+        font-size: 40px;
+      }
+    
+      .upload-section-title,
+      .manual-entry-title,
+      .generate-reports-title {
+        margin-top: 40px;
+      }
+    
+      .file-upload-container {
+        padding: 0 20px;
+      }
+    
+      .upload-btn,
+      .submit-btn {
+        margin-top: 40px;
+        white-space: initial;
+        padding: 0 20px;
+      }
+    
+      .form-select,
+      .report-select {
+        white-space: initial;
+      }
+    
+      .form-input {
+        padding-right: 20px;
+      }
+    
+      .generate-report-btn {
+        margin-top: 40px;
+        padding: 0 20px;
+      }
+    
+      .insights-container {
+        margin-top: 40px;
+      }
+    }
+    </style>
+    
+    <section class="business-tracker">
+      <div class="tracker-container">
+        <h1 class="tracker-title">Business Financial Tracker</h1>
+        
+        <h2 class="upload-section-title">Upload PDFs</h2>
+        <p class="upload-instruction">Upload multiple PDFs :</p>
+        <form class="file-upload-container">
+          <label for="file-upload" class="visually-hidden">Choose File</label>
+          <input type="file" id="file-upload" class="choose-file-btn" multiple>
+        </form>
+        <button class="upload-btn">Upload</button>
+        
+        <h2 class="manual-entry-title">Manual Entry</h2>
+        <form>
+          <label for="transaction-type" class="form-label">Transaction Type :</label>
+          <div class="form-select">
+            <select id="transactionType" name="transactionType">
+                <option value="cash">Cash</option>
+                <option value="bank">Bank</option>
+            </select>
+          </div>
+          
+          <label for="category" class="form-label">Category :</label>
+          <div class="form-select">
+                <select id="category" name="category">
+                    <option value="assets">Assets</option>
+                    <option value="income">Income</option>
+                    <option value="expenses">Expenses</option>
+                    <option value="capital">Capital</option>
+                    <option value="liability">Liability</option>
+                </select>
+          </div>
+          
+          <label for="amount" class="form-label">Amount :</label>
+          <input type="text" id="amount" class="form-input" placeholder="Enter amount">
+          
+          <button type="submit" class="submit-btn">Submit</button>
+        </form>
+        <h2 class="generate-reports-title">Generate Reports</h2>
+        <div class="report-selection">
+          <label for="report-type" class="report-label">Select Report</label>
+          <div class="report-select">
+            <select id="report-type" class="form-select">
+              <option value="income-statement">Income Statement</option>
+              <option value="balance-sheet">Balance Sheet</option>
+              <option value="cashbook">Cashbook</option>
+              <option value="forecast">Forecast</option>
+              <option value="trial-balance">Trial Balance</option>
+            </select>
+          </div>
+        </div>
+        <button class="generate-report-btn">Generate report</button>
+        
+        <h2 class="visual-insights-title">Visual Insights</h2>
+        <div class="insights-container" role="img" aria-label="Visual insights chart"></div>
+      </div>
+    </section>
