@@ -54,9 +54,12 @@ public class DatabaseConn {
             do {
                 retrievedDocs.push(doc.toJson());
             };
+        io:println("Retrieved Documents: ");
+        io:println(retrievedDocs.toString());
         return  retrievedDocs;
     } else {
         io:println("Collection not found");
+        return [];
     }
 }
 
@@ -119,11 +122,15 @@ service / on new http:Listener(8080) {
             if (stuff == collectionName.toString()){
                 info.loginfo("Collection Found: " + collectionName);
                 // read data from mongoDB
-                DatabaseConn dbConn = new DatabaseConn();
-                string dbNameStr = dbName.toString();
-                json[] listResult = check dbConn.retrieveData(dbNameStr, collectionName);
-                string result = listResult.toString();
-                json response = {status: "success", message: "Data retrieved successfully", data: listResult};
+                //DatabaseConn dbConn = new DatabaseConn();
+                //string dbNameStr = dbName.toString();
+                //json[] listResult = check dbConn.retrieveData(dbNameStr, collectionName);
+                //string result = listResult.toString();
+                //json response = {status: "success", message: "Data retrieved successfully", data: result};
+                //check caller->respond(response);
+            } else {
+                json response = {status: "failure", message: "Collection not found"};
+                check caller->respond(response);
             }
         }
 
@@ -141,8 +148,6 @@ service / on new http:Listener(8080) {
         // read data from mongoDB
         // json result = check dbConn.retrieveData(dbName, collectionName);
         // Respond with the retrieved data
-        // json response = {status: "failure", message: "Collection not found"};
-        check caller->respond(response);
     }
 }
 
@@ -159,6 +164,7 @@ public function main() returns error? {
 
     syslog info = new syslog();
     info.loginfo("Initializing Database Connection...");
+    info.loginfo("Checking Database Connection...");
     DatabaseConn dbConn = new DatabaseConn();
     info.loginfo("HTTP Server is running on port 8080.");
 
