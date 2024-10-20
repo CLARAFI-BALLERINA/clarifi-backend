@@ -1,8 +1,6 @@
 import ballerina/io;
 import ballerina/http;
 import ballerinax/mongodb;
-//  import ballerina/regex;
-//  import ballerina/lang.value;
 
 public class DatabaseConn {
     public string hostname = "localhost";
@@ -13,24 +11,23 @@ public class DatabaseConn {
     public mongodb:Collection? collection = ();
 
     public function initDB(string hostname, int port, json document, string dbNameStr, string collectionName) returns error? {
-    self.hostname = hostname;
-    self.port = port;
-    self.document = document;
-    mongodb:Client mongoDb = check self.connectDB();
-    mongodb:Database dbName = check mongoDb->getDatabase(dbNameStr);
-    var collectionResult = dbName->getCollection(collectionName);
-    if (collectionResult is mongodb:Collection) {
-        self.collection = collectionResult;
-        // Convert json to a record type
-        record {| anydata...; |} docRecord = check document.cloneWithType();
-        // add record to collection
-        check collectionResult->insertOne(docRecord);
-    } else {
-        return collectionResult;
+        self.hostname = hostname;
+        self.port = port;
+        self.document = document;
+        mongodb:Client mongoDb = check self.connectDB();
+        mongodb:Database dbName = check mongoDb->getDatabase(dbNameStr);
+        var collectionResult = dbName->getCollection(collectionName);
+        if (collectionResult is mongodb:Collection) {
+            self.collection = collectionResult;
+            // Convert json to a record type
+            record {| anydata...; |} docRecord = check document.cloneWithType();
+            // add record to collection
+            check collectionResult->insertOne(docRecord);
+        } else {
+            return collectionResult;
+        }
+        return ();
     }
-    return ();
-}
-
 
     public function connectDB() returns mongodb:Client|error {
         mongodb:Client mongoDb = check new ({
@@ -43,6 +40,26 @@ public class DatabaseConn {
         });
         return mongoDb;
     }
+
+    // Function to retrieve data from the collection based on filter criteria
+    public function retrieveData(string dbNameStr, string collectionName) returns json[]|error {
+    mongodb:Client mongoDb = check self.connectDB();
+    mongodb:Database dbName = check mongoDb->getDatabase(dbNameStr);
+    var collectionResult = dbName->getCollection(collectionName);
+    if (collectionResult is mongodb:Collection) {
+        map<json> query = {};
+        stream<record {| anydata...; |}, error?> docStream = check collectionResult->find(query);
+        json[] retrievedDocs = [];
+        check from record {| anydata...; |} doc in docStream
+            do {
+                retrievedDocs.push(doc.toJson());
+            };
+        return  retrievedDocs;
+    } else {
+        io:println("Collection not found");
+    }
+}
+
 }
 
 public class syslog {
@@ -50,46 +67,82 @@ public class syslog {
         io:println("[Clarifi-System-Info] " + data);
     }
 }
-
-// HTTP service to listen for JSON inputs
 service / on new http:Listener(8080) {
 
+    // Resource to handle POST requests for inserting data
     resource function post jsonInput(http:Caller caller, http:Request req) returns error? {
         syslog info = new syslog();
-        info.loginfo("Received HTTP request.");
+        info.loginfo("Received HTTP POST request.");
 
         json payload = check req.getJsonPayload();
         info.loginfo("Extracted JSON payload: " + payload.toString());
 
         string payloadToString = payload.toString();
-
-
         info.loginfo("Payload to string: " + payloadToString);
 
         json parsedData = check payloadToString.fromJsonString();
-
         io:println(parsedData);
         string[7] collections = ["users", "admins", "income", "expenses", "assets", "liabilities", "capital"];
         string collectionName = check parsedData.collectionName;
         string dbName = check parsedData.dbName;
         json updateData = check parsedData.data;
 
-
         foreach string stuff in collections {
             if (stuff == collectionName.toString()) {
-                info.loginfo("Collection name found:"+ collectionName);
+                info.loginfo("Collection name found: " + collectionName);
                 DatabaseConn dbConn = new DatabaseConn();
-                //io:println(updateData);
-                //map<any> document = updateData;
                 string dbNameStr = dbName.toString();
-                //io:println(dbNameStr);
                 check dbConn.initDB("localhost", 27017, updateData, dbNameStr, collectionName);
             }
         }
 
-        json response = {status: "success", message: "JSON received", data: payload};
+        json response = {status: "success", message: "Data inserted successfully", data: payload};
         check caller->respond(response);
+    }
 
+    // Resource to handle GET requests for retrieving data
+    resource function get getData(http:Caller caller, http:Request req) returns error? {
+        syslog info = new syslog();
+        info.loginfo("Received HTTP GET request.");
+        string[7] collections = ["users", "admins", "income", "expenses", "assets", "liabilities", "capital"];
+
+        json payload = check req.getJsonPayload();
+
+
+        string payloadToString = payload.toString();
+        json parsedData = check payloadToString.fromJsonString();
+
+        string collectionName = check parsedData.collectionName;
+        string dbName = check parsedData.dbName;
+
+        foreach string stuff in collections {
+            if (stuff == collectionName.toString()){
+                info.loginfo("Collection Found: " + collectionName);
+                // read data from mongoDB
+                DatabaseConn dbConn = new DatabaseConn();
+                string dbNameStr = dbName.toString();
+                json[] listResult = check dbConn.retrieveData(dbNameStr, collectionName);
+                string result = listResult.toString();
+                json response = {status: "success", message: "Data retrieved successfully", data: listResult};
+            }
+        }
+
+
+        // Extract query parameters for the database name and collection
+        // string dbName = check req.getQueryParamValue("dbName");
+        // string collectionName = check req.getQueryParamValue("collectionName");
+        // json filter = check req.getJsonPayload();
+
+        // info.loginfo("Database: " + dbName + ", Collection: " + collectionName + ", Filter: " + filter.toString());
+
+        // DatabaseConn dbConn = new DatabaseConn();
+        // json result = check dbConn.retrieveData(dbName, collectionName, filter);
+
+        // read data from mongoDB
+        // json result = check dbConn.retrieveData(dbName, collectionName);
+        // Respond with the retrieved data
+        // json response = {status: "failure", message: "Collection not found"};
+        check caller->respond(response);
     }
 }
 
@@ -107,7 +160,6 @@ public function main() returns error? {
     syslog info = new syslog();
     info.loginfo("Initializing Database Connection...");
     DatabaseConn dbConn = new DatabaseConn();
-    // check dbConn.initDB("localhost", 27017, {}, "clarifi", "users");
     info.loginfo("HTTP Server is running on port 8080.");
 
     return ();
