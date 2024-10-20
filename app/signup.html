@@ -55,8 +55,6 @@
         padding: 0;
       }
 
-
-      
       .background-image {
         width: 100%;
         height: auto;
@@ -203,46 +201,51 @@
 
       <!-- Right Form Section -->
       <div class="signup-right">
-        <form class="signup-form">
+        <form id="signup-form" class="signup-form">
           <h2 class="form-title">Create Your Account</h2>
           <input
             type="text"
             id="firstName"
             class="form-input"
             placeholder="First Name"
+            required
           />
           <input
             type="text"
             id="lastName"
             class="form-input"
             placeholder="Last Name"
+            required
           />
           <input
             type="email"
             id="email"
             class="form-input"
             placeholder="Email"
+            required
           />
           <input
             type="password"
             id="password"
             class="form-input"
             placeholder="Password"
+            required
           />
           <input
             type="password"
             id="confirmPassword"
             class="form-input"
             placeholder="Confirm Password"
+            required
           />
           <div class="account-type-section">
             <div class="account-type-options">
               <div class="account-type-option">
-                <input type="radio" id="personal" name="accountType" />
+                <input type="radio" id="personal" name="accountType" value="personal" required />
                 <label for="personal">Personal</label>
               </div>
               <div class="account-type-option">
-                <input type="radio" id="business" name="accountType" />
+                <input type="radio" id="business" name="accountType" value="business" />
                 <label for="business">Business</label>
               </div>
             </div>
@@ -255,5 +258,40 @@
         </form>
       </div>
     </section>
+
+    <script>
+      document.getElementById('signup-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const formData = {
+          firstName: document.getElementById('firstName').value,
+          lastName: document.getElementById('lastName').value,
+          email: document.getElementById('email').value,
+          password: document.getElementById('password').value,
+          confirmPassword: document.getElementById('confirmPassword').value,
+          accountType: document.querySelector('input[name="accountType"]:checked').value
+        };
+        const requestData = {
+          dbName: "clarifi",
+          collectionName: "users",
+          data: formData
+        };
+        fetch('http://localhost:8080/jsonInput', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestData),
+        })
+        .then(response => response.json())
+        .then(data => {
+          console.log('Success:', data);
+          alert('Sign-up successful!');
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('There was an error during sign-up.');
+        });
+      });
+    </script>
   </body>
 </html>
