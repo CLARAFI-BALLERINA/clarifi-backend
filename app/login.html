@@ -166,43 +166,103 @@
             }
         }
     </style>
+    <script>
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            console.log(ca);
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+        function setCookie(name, value, days) {
+            let expires = "";
+            if (days) {
+                const date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000)); // Set expiration date
+                expires = "; expires=" + date.toUTCString();
+            }
+            document.cookie = name + "=" + (value || "") + expires + "; path=/;"; // Secure and HttpOnly if needed
+            console.log(getCookie("sessionToken"));
+        }
+        async function handleLogin(event) {
+            event.preventDefault();
+    
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+    
+            // Create the data object to send
+            const data = {
+                collectionName: "users",
+                dbName: "clarifi",
+                email: email,
+                passwd: password
+            };
+    
+            try {
+                const response = await fetch("http://localhost:8080/getData", {
+                    method: "POST",  // Using POST to match the curl request
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(data)  // Send the data in the body of the request
+                });
+    
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+    
+                const result = await response.json();
+                console.log("Account Found:", result);
+    
+                // Check if login failed
+                if (result.status === "failure" && result.message === "Collection not found") {
+                    alert("Login failed. Please check your credentials.");
+                } else {
+                    const user = result.data || result;
+                    const firstName = String(user.firstName || "User");
+                    const accountType = String(user.accountType || "N/A");
+                    const sessionToken = result.sessionToken || "N/A";
+                    alert(`Login Successful: Welcome, ${firstName}. Account type: ${accountType} | Session Token: ${sessionToken}`);
+                    setCookie("sessionToken", sessionToken, 7);
+                    if (accountType === "personal") {
+                        window.location.href = "personal";
+                    } else {
+                        window.location.href = "business";
+                    }
+                }
+
+    
+            } catch (error) {
+                console.error("There was a problem with the login request:", error);
+                alert("Login failed. Please check your credentials.");
+            }
+        }
+    
+        // Attach the handleLogin function to form submission
+        document.querySelector('.login-form').onsubmit = handleLogin;
+    </script>
+    
+    
+    
 </head>
 <body>
     <section class="login-container">
         <div class="login-left">
             <h1>Welcome Back!</h1>
             <div class="image-wrapper">
-                <img
-                    loading="lazy"
-                    src="https://cdn.builder.io/api/v1/image/assets/TEMP/175205890ba34d46ef31e8b0a5a6c82866efdecd03ea1a8627a774cfa3aefcd6?placeholderIfAbsent=true&apiKey=bafea13b705f4c4497b3ce15ecd9a5a8"
-                    class="background-image"
-                    alt=""
-                />
-                <img
-                    loading="lazy"
-                    src="https://cdn.builder.io/api/v1/image/assets/TEMP/b22bcdaa3d003092faedda13c2fed97d045134760261337b3bfc358583b6d8f8?placeholderIfAbsent=true&apiKey=bafea13b705f4c4497b3ce15ecd9a5a8"
-                    class="background-image"
-                    alt="Welcome design element"
-                />
+                <img loading="lazy" src="https://cdn.builder.io/api/v1/image/assets/TEMP/175205890ba34d46ef31e8b0a5a6c82866efdecd03ea1a8627a774cfa3aefcd6?placeholderIfAbsent=true&apiKey=bafea13b705f4c4497b3ce15ecd9a5a8" class="background-image" alt="" />
+                <img loading="lazy" src="https://cdn.builder.io/api/v1/image/assets/TEMP/b22bcdaa3d003092faedda13c2fed97d045134760261337b3bfc358583b6d8f8?placeholderIfAbsent=true&apiKey=bafea13b705f4c4497b3ce15ecd9a5a8" class="background-image" alt="Welcome design element" />
             </div>
         </div>
         <div class="login-right">
-            <form class="login-form">
+            <form class="login-form" onsubmit="handleLogin(event)">
                 <h2 class="form-title">Login</h2>
-                <input
-                    type="email"
-                    id="email"
-                    class="form-input"
-                    placeholder="Email"
-                    required
-                />
-                <input
-                    type="password"
-                    id="password"
-                    class="form-input"
-                    placeholder="Password"
-                    required
-                />
+                <input type="email" id="email" class="form-input" placeholder="Email" required />
+                <input type="password" id="password" class="form-input" placeholder="Password" required />
                 <button type="submit" class="submit-button">Login</button>
                 <div class="login-section">
                     <p class="login-text">Not signed up yet?</p>

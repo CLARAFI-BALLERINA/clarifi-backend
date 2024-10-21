@@ -259,6 +259,58 @@
       }
     }
     </style>
+    <script>
+      function getCookie(name) {
+          const nameEQ = name + "=";
+          const ca = document.cookie.split(';');
+          console.log(ca);
+          for (let i = 0; i < ca.length; i++) {
+              let c = ca[i];
+              while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+              if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+          }
+          return null;
+      }
+  
+      async function handleLogin() {
+          const sessionToken = getCookie("sessionToken");
+          console.log(sessionToken);
+          const data = {
+              sessionToken: sessionToken
+          };
+  
+          try {
+              const response = await fetch("http://localhost:8080/checkSession", {
+                  method: "POST", 
+                  headers: {
+                      "Content-Type": "application/json"
+                  },
+                  body: JSON.stringify(data)
+              });
+  
+              if (!response.ok) {
+                  throw new Error("Network response was not ok");
+              }
+  
+              const result = await response.json();
+              if (result.status == "success") {
+                  alert("[Debug] Session Verification successful!");
+              } else {
+                  alert("[Debug] Session Verification failed! - System functions will be unavailable");
+              }
+              console.log("Account Found:", result);
+              alert("[Debug] Session Verification - Check Console for Details");
+  
+          } catch (error) {
+              console.error("There was a problem with the login request:", error);
+              alert("Session Verification Failiure ! - System Function will be disabled !");
+          }
+      }
+  
+      window.onload = function() {
+          handleLogin();
+      };
+  </script>  
     
     <section class="business-tracker">
       <div class="tracker-container">

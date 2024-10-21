@@ -2,6 +2,11 @@ import ballerina/io;
 import ballerina/http;
 import ballerinax/mongodb;
 import ballerina/mime;
+import ballerina/random;
+// import ballerina/regex;
+
+// global variable to store the session token
+string sessionTokenGlobal = "";
 
 public class DatabaseConn {
     public string hostname = "localhost";
@@ -53,8 +58,8 @@ public class DatabaseConn {
                 do {
                     retrievedDocs.push(doc.toJson());
                 };
-            io:println("Retrieved Documents: ");
-            io:println(retrievedDocs.toString());
+            // io:println("Retrieved Documents: ");
+            // io:println(retrievedDocs.toString());
             return retrievedDocs;
         } else {
             io:println("Collection not found");
@@ -69,10 +74,22 @@ public class syslog {
     }
 }
 
+public class UserSession {
+    public string email = "";
+    public string password = "";
+    public string sessionToken = "";
+
+    public function sessionSave(string email, string password, string sessionToken) returns string {
+        self.email = email;
+        self.password = password;
+        self.sessionToken = sessionToken;
+        return self.sessionToken;
+    }
+}
+
 // Service to handle HTTP requests
 service / on new http:Listener(8080) {
 
-    // Resource to handle POST requests for inserting data
     resource function post jsonInput(http:Caller caller, http:Request req) returns error? {
         syslog info = new syslog();
         info.loginfo("Received HTTP POST request.");
@@ -103,7 +120,7 @@ service / on new http:Listener(8080) {
         check caller->respond(response);
     }
 
-    resource function get getData(http:Caller caller, http:Request req) returns error? {
+    resource function post getData(http:Caller caller, http:Request req) returns error? {
         syslog info = new syslog();
         json response = {};
         info.loginfo("Received HTTP GET request.");
@@ -122,22 +139,51 @@ service / on new http:Listener(8080) {
         foreach string stuff in collections {
             if (stuff == collectionName.toString()) {
                 if (collectionName.toString() == "users") {
+                    // Crossreferencing credentials with the database
                     string email = check parsedData.email;
                     string emailStr = email.toString();
+                    string passwd = check parsedData.passwd;
+                    string passwdStr = passwd.toString();
                     info.loginfo("Email: " + emailStr);
                     DatabaseConn dbConn = new DatabaseConn();
                     string dbNameStr = dbName.toString();
                     json[] listResult = check dbConn.retrieveData(dbNameStr, collectionName);
+                    // string listResultStr = listResult.toString();
+                    // io:println("List Result: " + listResult[1].toString());
+                    foreach json item in listResult {
+                        // io:println("Item: " + item.email);
+                        json itemEmail = check item.email;
+                        string itemEmailToString = itemEmail.toString();
+                        json itemPasswd = check item.password;
+                        string itemPasswdToString = itemPasswd.toString();
+                        if (itemEmailToString == emailStr && itemPasswdToString == passwdStr) {
+                            io:println("Account Found: " + item.toString());
+                            int randomInteger = check random:createIntInRange(1999999, 10000000);
+                            // Generate a unique session token
+                            string sessionToken = "clarifi-" + emailStr + "-" + passwdStr + "-" + randomInteger.toString();
+                            UserSession userSession = new UserSession();
+                            string sessionStart = userSession.sessionSave(emailStr, passwdStr, sessionToken);
+                            sessionTokenGlobal = sessionStart;
+                            // if (regex:matches(passwdStr, item)) {
+                            response = {status: "success", message: "User found", data: item, sessionToken: sessionStart};
+                                collectionFound = true;
+                                break;
+                            // }
+                        } else {
+                            response = {status: "failure", message: "User not found"};
+                        }
+                    }
+                } else {
+                    info.loginfo("Collection Found: " + collectionName);
+                    DatabaseConn dbConn = new DatabaseConn();
+                    string dbNameStr = dbName.toString();
+                    json[] listResult = check dbConn.retrieveData(dbNameStr, collectionName);
+                    string result = listResult.toString();
+                    // io:println("Result: " + result);
+                    response = {status: "success", message: "Data retrieved successfully"};
+                    collectionFound = true;
+                    break; // Exit loop when collection is found
                 }
-                info.loginfo("Collection Found: " + collectionName);
-                DatabaseConn dbConn = new DatabaseConn();
-                string dbNameStr = dbName.toString();
-                json[] listResult = check dbConn.retrieveData(dbNameStr, collectionName);
-                string result = listResult.toString();
-                io:println("Result: " + result);
-                response = {status: "success", message: "Data retrieved successfully", data: result};
-                collectionFound = true;
-                break; // Exit loop when collection is found
             }
         }
 
@@ -145,6 +191,43 @@ service / on new http:Listener(8080) {
             response = {status: "failure", message: "Collection not found"};
         }
         check caller->respond(response);
+    }
+
+    resource function post checkSession(http:Caller caller, http:Request req) returns error? {
+        io:println("Checking Session...");
+        json payload;
+        do {
+            payload = check req.getJsonPayload();
+        } on fail  {
+            payload = {};
+        }
+        io:println("Payload: " + payload.toString());
+        do {
+	        string sessionToken = check payload.sessionToken;
+            io:print("Session Token: " + sessionToken.toString());
+            io:print("User Session Token: " + sessionTokenGlobal);
+            if sessionTokenGlobal == sessionToken {
+                json response = {status: "success", message: "Session token found"};
+                check caller->respond(response);
+            } else {
+                //json response = {status: "failure", message: "Session token not found"};
+                string pathToFile = "./app/index.html";
+                mime:Entity entity = new;
+                entity.setFileAsEntityBody(pathToFile, contentType = mime:TEXT_HTML);
+                http:Response response = new;
+                response.setEntity(entity);
+                // force redirect to index.html
+                check caller->respond(response);
+            }
+        } on fail {
+            string pathToFile = "./app/index.html";
+            mime:Entity entity = new;
+            entity.setFileAsEntityBody(pathToFile, contentType = mime:TEXT_HTML);
+            http:Response response = new;
+            response.setEntity(entity);
+            // force redirect to index.html
+            check caller->respond(response);
+        }
     }
 
     // Resource to handle GET requests to display the index.html
@@ -173,6 +256,26 @@ service / on new http:Listener(8080) {
     resource function get login(http:Caller caller, http:Request req) returns error? {
         syslog info = new syslog();
         string pathToFile = "./app/login.html";
+        mime:Entity entity = new;
+        entity.setFileAsEntityBody(pathToFile, contentType = mime:TEXT_HTML);
+        http:Response response = new;
+        response.setEntity(entity);
+        check caller->respond(response);
+    }
+
+    resource function get business(http:Caller caller, http:Request req) returns error? {
+        syslog info = new syslog();
+        string pathToFile = "./app/business.html";
+        mime:Entity entity = new;
+        entity.setFileAsEntityBody(pathToFile, contentType = mime:TEXT_HTML);
+        http:Response response = new;
+        response.setEntity(entity);
+        check caller->respond(response);
+    }
+
+    resource function get personal(http:Caller caller, http:Request req) returns error? {
+        syslog info = new syslog();
+        string pathToFile = "./app/business.html";
         mime:Entity entity = new;
         entity.setFileAsEntityBody(pathToFile, contentType = mime:TEXT_HTML);
         http:Response response = new;
