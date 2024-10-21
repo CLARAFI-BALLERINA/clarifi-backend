@@ -1,6 +1,6 @@
 # clarifi-backend
 
-## Insitialize the server
+## Initialize the server
 
 First Clone this repo, then do the following steps
 
